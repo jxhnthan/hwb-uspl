@@ -98,6 +98,7 @@ export default function ScatterPlot({ points, varExplained, clusterColors, clust
                 r={3}
               />
             ))}
+
           </ScatterChart>
         </ResponsiveContainer>
       </div>

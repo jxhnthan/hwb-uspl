@@ -79,7 +79,7 @@ export default function App() {
         : [...prev, key]
     )
 
-  const { clusterStats, pcaPoints, varExplained, elbowData, computing } = useCluster(
+  const { clusterStats, pcaPoints, varExplained, elbowData, pcLoadings, silhouette, computing } = useCluster(
     rawData, algorithm, k, activeVarKeys
   )
 
@@ -116,7 +116,7 @@ export default function App() {
             HWB Clustering Explorer
           </h1>
           <p className="text-sm text-[#787774] mt-1">
-            NUS Health &amp; Wellbeing Survey 2025 · Unsupervised Learning analysis
+            NUS Health &amp; Wellbeing Survey 2024 · Unsupervised Learning analysis
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1">
@@ -158,6 +158,8 @@ export default function App() {
               varExplained={varExplained}
               clusterColors={CLUSTER_COLORS}
               clusterCount={k}
+              pcLoadings={pcLoadings}
+              activeVars={activeVars}
               computing={computing}
             />
           </div>
@@ -184,6 +186,7 @@ export default function App() {
           clusterStats={clusterStats}
           vars={activeVars}
           clusterColors={CLUSTER_COLORS}
+          silhouette={silhouette}
         />
 
       </main>

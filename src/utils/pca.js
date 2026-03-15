@@ -67,8 +67,12 @@ export function computePCA2D(matrix) {
 
   const scores = matrix.map((row) => [dot(row, pc1), dot(row, pc2)])
 
+  // loadings[j] = [pc1[j], pc2[j]] — biplot coordinates for variable j
+  const pcLoadings = Array.from({ length: d }, (_, j) => [pc1[j], pc2[j]])
+
   return {
     scores,
+    pcLoadings,
     varExplained: [
       Math.round((Math.abs(ev1) / totalVar) * 1000) / 10,
       Math.round((Math.abs(ev2) / totalVar) * 1000) / 10,

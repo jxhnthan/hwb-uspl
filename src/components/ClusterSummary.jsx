@@ -1,4 +1,75 @@
-export default function ClusterSummary({ clusterStats, vars, clusterColors }) {
+// ── Demographic breakdown helper ──────────────────────────────────────────────
+const EE_COLORS = { Admin: '#2383e2', Exec: '#e07b54', Research: '#0f9b8e', Faculty: '#d4a847', Other: '#9b69c9' }
+const GEN_COLORS  = { F: '#d4286a', M: '#1a6fbf' }
+
+function getColor(field, val, idx) {
+  if (field === 'ee_cat') return EE_COLORS[val] ?? '#c7c5bf'
+  if (field === 'gender') return GEN_COLORS[val] ?? '#c7c5bf'
+  const palette = ['#6c8ebf', '#d4a847', '#82b366', '#e07b9e', '#9b69c9', '#e07b54']
+  return palette[idx % palette.length]
+}
+
+function DemoBreakdown({ clusterStats, clusterColors }) {
+  const fields = [
+    { key: 'ee_cat',   label: 'Employee Category' },
+    { key: 'gender',   label: 'Gender' },
+  ]
+
+  return (
+    <div className="mt-5 pt-4 border-t border-[#f1f0ec]">
+      <div className="text-xs font-medium text-[#c7c5bf] uppercase tracking-widest mb-3">Composition</div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:gap-8">
+        {fields.map(({ key, label }) => {
+          const allVals = [...new Set(clusterStats.flatMap(cs => Object.keys(cs.demoCounts?.[key] ?? {})))]
+          if (!allVals.length) return null
+          return (
+            <div key={key} className="flex-1 min-w-0">
+              <div className="text-[10px] text-[#aba9a2] uppercase tracking-wider mb-2">{label}</div>
+              <div className="flex flex-col gap-1.5">
+                {clusterStats.map((cs, ci) => {
+                  const counts = cs.demoCounts?.[key] ?? {}
+                  const total = Object.values(counts).reduce((s, v) => s + v, 0)
+                  return (
+                    <div key={cs.cluster} className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: clusterColors[ci % clusterColors.length] }}
+                      />
+                      <div className="flex h-3 rounded-full overflow-hidden flex-1" style={{ minWidth: 80 }}>
+                        {allVals.map((val, vi) => {
+                          const pct = total > 0 ? (counts[val] ?? 0) / total * 100 : 0
+                          if (pct < 0.5) return null
+                          return (
+                            <div
+                              key={val}
+                              title={`${val}: ${pct.toFixed(1)}%`}
+                              style={{ width: `${pct}%`, backgroundColor: getColor(key, val, vi) }}
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              {/* Legend */}
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                {allVals.map((val, vi) => (
+                  <span key={val} className="flex items-center gap-1 text-[10px] text-[#787774]">
+                    <span className="w-2 h-2 rounded-sm inline-block" style={{ backgroundColor: getColor(key, val, vi) }} />
+                    {val}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export default function ClusterSummary({ clusterStats, vars, clusterColors, silhouette }) {
   const total = clusterStats.reduce((s, c) => s + c.n, 0)
 
   return (
@@ -8,6 +79,23 @@ export default function ClusterSummary({ clusterStats, vars, clusterColors }) {
           <h3 className="text-sm font-semibold text-[#37352f]">Cluster Summary</h3>
           <p className="text-xs text-[#787774] mt-0.5">Raw-scale means per cluster</p>
         </div>
+        <div className="flex items-start gap-3 mt-0.5">
+          {/* Overall silhouette badge */}
+          {silhouette?.overall != null && clusterStats.length > 0 && (
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[10px] text-[#aba9a2] uppercase tracking-wider">Silhouette</span>
+              <span
+                className="font-mono text-sm font-semibold tabular-nums px-2 py-0.5 rounded"
+                style={{
+                  color: silhouette.overall > 0.4 ? '#166534' : silhouette.overall > 0.2 ? '#92400e' : '#7f1d1d',
+                  backgroundColor: silhouette.overall > 0.4 ? '#dcfce7' : silhouette.overall > 0.2 ? '#fef3c7' : '#fee2e2',
+                }}
+                title="Overall mean silhouette score — higher means clusters are well-separated"
+              >
+                {silhouette.overall.toFixed(3)}
+              </span>
+            </div>
+          )}
         {/* Proportion bar */}
         {clusterStats.length > 0 && (
           <div className="flex flex-col items-end gap-1">
@@ -38,7 +126,8 @@ export default function ClusterSummary({ clusterStats, vars, clusterColors }) {
             </div>
           </div>
         )}
-      </div>
+        </div>{/* end flex gap-3 */}
+      </div>{/* end justify-between */}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -99,6 +188,11 @@ export default function ClusterSummary({ clusterStats, vars, clusterColors }) {
           </tbody>
         </table>
       </div>
+
+      {/* Demographic composition breakdown */}
+      {clusterStats.length > 0 && clusterStats[0].demoCounts && (
+        <DemoBreakdown clusterStats={clusterStats} clusterColors={clusterColors} />
+      )}
     </div>
   )
 }

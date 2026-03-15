@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import ClusterWorker from '../workers/cluster.worker.js?worker'
 
-const EMPTY = { labels: [], pcaPoints: [], varExplained: [0, 0], clusterStats: [], elbowData: [] }
+const EMPTY = {
+  labels: [], pcaPoints: [], varExplained: [0, 0],
+  clusterStats: [], elbowData: [], pcLoadings: [],
+  silhouette: { perCluster: {}, overall: 0 },
+}
 
 export function useCluster(rawData, algorithm, k, varKeys) {
   const workerRef  = useRef(null)

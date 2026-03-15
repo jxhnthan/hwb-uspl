@@ -14,6 +14,17 @@ function zToText(z) {
   return z < -0.5 ? 'white' : z > 0.5 ? 'white' : '#37352f'
 }
 
+// Silhouette score → subtle green/red background
+function silToColor(s) {
+  const t = Math.max(-1, Math.min(1, s ?? 0))
+  if (t >= 0) {
+    const f = t
+    return `rgb(${Math.round(255 - f * 60)},${Math.round(255 - f * 20)},${Math.round(255 - f * 60)})`
+  }
+  const f = -t
+  return `rgb(255,${Math.round(255 - f * 60)},${Math.round(255 - f * 60)})`
+}
+
 const SectionCard = ({ children, title, subtitle }) => (
   <div className="relative bg-white rounded-xl border border-[#e8e7e4] p-5 shadow-sm h-full flex flex-col">
     <div className="mb-3">
@@ -53,6 +64,7 @@ export default function ClusterHeatmap({ clusterStats, vars, clusterColors, comp
                     {v.label}
                   </th>
                 ))}
+                <th className="text-center text-xs font-medium text-[#aba9a2] pb-2 pl-2">Sil.</th>
                 <th className="text-center text-xs font-medium text-[#aba9a2] pb-2 pl-2">n</th>
               </tr>
             </thead>
@@ -83,6 +95,16 @@ export default function ClusterHeatmap({ clusterStats, vars, clusterColors, comp
                       </td>
                     )
                   })}
+                  {/* Silhouette */}
+                  <td className="pl-2 py-1.5 text-center">
+                    <div
+                      className="rounded-md px-2 py-1.5 text-xs font-semibold tabular-nums transition-colors duration-200"
+                      style={{ backgroundColor: silToColor(cs.silhouette), color: '#37352f', minWidth: 44 }}
+                      title="Mean silhouette score for this cluster (higher = better separation)"
+                    >
+                      {(cs.silhouette ?? 0).toFixed(2)}
+                    </div>
+                  </td>
                   {/* Count */}
                   <td className="pl-2 text-center text-xs text-[#787774] font-mono tabular-nums">
                     {cs.n.toLocaleString()}
