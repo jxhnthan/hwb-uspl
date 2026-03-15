@@ -3,6 +3,7 @@ import CommandBar from './components/CommandBar'
 import ScatterPlot from './components/ScatterPlot'
 import ClusterHeatmap from './components/ClusterHeatmap'
 import ClusterSummary from './components/ClusterSummary'
+import ClusterRadar from './components/ClusterRadar'
 import ElbowCard from './components/ElbowCard'
 import { useCluster } from './hooks/useCluster'
 
@@ -180,6 +181,13 @@ export default function App() {
             />
           </div>
         </div>
+
+        {/* Radar profiles + centroid separation */}
+        <ClusterRadar
+          clusterStats={clusterStats}
+          vars={activeVars}
+          clusterColors={CLUSTER_COLORS}
+        />
 
         {/* Full-width summary table */}
         <ClusterSummary

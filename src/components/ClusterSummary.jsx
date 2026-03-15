@@ -1,18 +1,28 @@
 // ── Demographic breakdown helper ──────────────────────────────────────────────
 const EE_COLORS = { Admin: '#2383e2', Exec: '#e07b54', Research: '#0f9b8e', Faculty: '#d4a847', Other: '#9b69c9' }
 const GEN_COLORS  = { F: '#d4286a', M: '#1a6fbf' }
+const AGE_COLORS  = {
+  'Under 25':    '#f59e0b',
+  '25 to 34':    '#10b981',
+  '35 to 44':    '#2383e2',
+  '45 to 54':    '#9b69c9',
+  '55 to 64':    '#e07b54',
+  '65 and above':'#e74c3c',
+}
 
 function getColor(field, val, idx) {
-  if (field === 'ee_cat') return EE_COLORS[val] ?? '#c7c5bf'
-  if (field === 'gender') return GEN_COLORS[val] ?? '#c7c5bf'
+  if (field === 'ee_cat')    return EE_COLORS[val]  ?? '#c7c5bf'
+  if (field === 'gender')    return GEN_COLORS[val] ?? '#c7c5bf'
+  if (field === 'age_group') return AGE_COLORS[val] ?? '#c7c5bf'
   const palette = ['#6c8ebf', '#d4a847', '#82b366', '#e07b9e', '#9b69c9', '#e07b54']
   return palette[idx % palette.length]
 }
 
 function DemoBreakdown({ clusterStats, clusterColors }) {
   const fields = [
-    { key: 'ee_cat',   label: 'Employee Category' },
-    { key: 'gender',   label: 'Gender' },
+    { key: 'ee_cat',    label: 'Employee Category' },
+    { key: 'gender',    label: 'Gender' },
+    { key: 'age_group', label: 'Age Group' },
   ]
 
   return (
